@@ -5,9 +5,9 @@ use std::process;
 
 pub fn run_built_in(path : String, argv : Vec<&str>) -> (i32) {
     return match path.as_ref() {
-        "/bin/cd" => cd(argv),
-        "/bin/pwd" => pwd(),
-        "/bin/exit" => exit(0),
+        "cd" => cd(argv),
+        "pwd" => pwd(),
+        "exit" => exit(0),
         _ => -1,
     }
 }

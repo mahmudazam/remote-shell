@@ -1,0 +1,7 @@
+[package]
+name = "remote-shell"
+version = "0.1.0"
+authors = ["Mahmud Azam (mfa256) <mfa256@mail.usask.ca>"]
+
+[dependencies]
+libc = "0.2"

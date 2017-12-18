@@ -4,6 +4,7 @@ extern crate libc;
 use std::io::{self, Write};
 use std::process;
 use std::process::Command;
+use std::env;
 
 mod built_ins;
 use built_ins::run_built_in;
@@ -17,7 +18,9 @@ fn exit_shell(i : i32) {
 }
 
 fn print_prompt() {
-    print!("<{}> > ", "cwd");
+    let cwd = env::current_dir().unwrap();
+    let cwd = format!("{}", cwd.display());
+    print!("\n::{}\n> ", cwd);
     io::stdout().flush()
         .expect("Printing failed");
 }

@@ -54,7 +54,10 @@ fn exec_comm(comm : String) -> i32 {
         let exit_status = child.wait()
                           .expect("wait failure");
         
-        return 0;
+        return match exit_status.code() {
+            None => -1,
+            Some(c) => c,
+        };
     } else {
         return 0;
     }

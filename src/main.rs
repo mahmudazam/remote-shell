@@ -24,7 +24,7 @@ fn get_comm() -> String {
     let mut comm = String::new();
     match io::stdin().read_line(&mut comm) {
         Ok(0)  => {
-          run_built_in(String::from("/bin/exit"), Vec::new());
+          run_built_in(&(String::from("exit")), &(Vec::new()));
         },
         Ok(_)  => nop(),
         Err(_) => nop(),

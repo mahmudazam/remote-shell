@@ -2,7 +2,6 @@
 extern crate libc;
 
 use std::io::{self, Write};
-use std::process;
 use std::process::Command;
 use std::env;
 
@@ -11,10 +10,6 @@ use built_ins::run_built_in;
 
 fn nop() {
     return;
-}
-
-fn exit_shell(i : i32) {
-    process::exit(i);
 }
 
 fn print_prompt() {
@@ -28,7 +23,9 @@ fn print_prompt() {
 fn get_comm() -> String {
     let mut comm = String::new();
     match io::stdin().read_line(&mut comm) {
-        Ok(0)  => exit_shell(0),
+        Ok(0)  => {
+          run_built_in(String::from("/bin/exit"), Vec::new());
+        },
         Ok(_)  => nop(),
         Err(_) => nop(),
     }
@@ -72,11 +69,6 @@ fn main() {
         print_prompt();
         let comm = get_comm();
         exec_comm(comm);
-
-        /* Exit shell: */
-        if false {
-            exit_shell(0);
-        }
     }
 }
 

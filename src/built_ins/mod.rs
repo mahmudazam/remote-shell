@@ -1,12 +1,13 @@
 
 use std::path::Path;
 use std::env;
+use std::process;
 
 pub fn run_built_in(path : String, argv : Vec<&str>) -> (i32) {
     return match path.as_ref() {
         "/bin/cd" => cd(argv),
         "/bin/pwd" => pwd(),
-        "/bin/exit" => exit(),
+        "/bin/exit" => exit(0),
         _ => -1,
     }
 }
@@ -30,8 +31,7 @@ fn pwd() -> i32 {
     return 0;
 }
 
-fn exit() -> i32 {
-    println!("exit called");
-    return 0;
+fn exit(i : i32) -> i32 {
+    process::exit(i);
 }
 

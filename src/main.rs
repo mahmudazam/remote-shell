@@ -5,6 +5,9 @@ use std::io::{self, Write};
 use std::process;
 use std::process::Command;
 
+mod built_ins;
+use built_ins::run_built_in;
+
 fn nop() {
     return;
 }
@@ -40,16 +43,22 @@ fn exec_comm(comm : String) -> i32 {
     for i in comm_vec {
         argv.push(i);
     }
-
-    /* Set up and run child: */
-    let mut child = Command::new(path)
-                        .args(argv)
-                        .spawn()
-                        .expect("Spawn failure");
-    let status = child.wait()
-                     .expect("wait failure");
     
-    return 0;
+    let exit_status = run_built_in(path.clone(), argv.clone());
+    if -1 == exit_status {
+        /* Set up and run child: */
+        let mut child = Command::new(path)
+                            .args(argv)
+                            .spawn()
+                            .expect("Spawn failure");
+        let exit_status = child.wait()
+                          .expect("wait failure");
+        
+        return 0;
+    } else {
+        return 0;
+    }
+
 }
 
 fn main() {

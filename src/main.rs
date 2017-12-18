@@ -3,6 +3,7 @@ extern crate libc;
 
 use std::io::{self, Write};
 use std::process;
+use std::process::Command;
 
 fn nop() {
     return;
@@ -29,12 +30,26 @@ fn get_comm() -> String {
 }
 
 fn exec_comm(comm : String) -> i32 {
-    let comm_vec = comm.split_whitespace();
-    let j = 0;
+    /* Tokenize string and get the command name and arguments: */
+    let mut comm_vec = comm.split_whitespace();
+    let path = match comm_vec.next() {
+        None => format!(""),
+        Some(name) => format!("/bin/{}", name),
+    };
+    let mut argv = Vec::new();
     for i in comm_vec {
-        println!("Command token {}: {}", j, i);
+        argv.push(i);
     }
-    return -1;
+
+    /* Set up and run child: */
+    let mut child = Command::new(path)
+                        .args(argv)
+                        .spawn()
+                        .expect("Spawn failure");
+    let status = child.wait()
+                     .expect("wait failure");
+    
+    return 0;
 }
 
 fn main() {

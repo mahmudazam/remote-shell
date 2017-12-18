@@ -1,29 +1,41 @@
 
 use std::process::Command;
-use std::fs;
 
 use built_ins::run_built_in;
 
 static PATH : [&'static str; 4] =
     ["/bin/", "/usr/bin/", "/usr/local/bin/", "/usr/sbin/"];
 
-fn which(name : String) -> Option<String> {
+fn try_exec(name : String, argv : Vec<&str>) -> i32 {
     for i in PATH.iter() {
-        let meta = fs::metadata(format!("{}{}", i, name));
-        match meta {
-            Ok(_) => {
-                return Some(format!("{}{}", i, name));
+        /* Try an exec: */
+        let p = format!("{}{}", i, name);
+        let child = Command::new(p)
+                            .args(&argv)
+                            .spawn();
+        match child {
+            Ok(mut c) => {
+                let exit_status = c.wait()
+                    .expect("Wait failure");
+                return match exit_status.code() {
+                    None => -1,
+                    Some(s) => s,
+                };
             },
-            Err(_) => {;},
+            Err(_) => {
+                ; /* Continue if failed */
+            },
         }
     }
-    return None;
+
+    println!("-shell: command not found");
+    return -1;
 }
 
 pub fn exec_comm(comm : String) -> i32 {
     /* Tokenize string and get the command name and arguments: */
     let mut comm_vec = comm.split_whitespace();
-    let path = match comm_vec.next() {
+    let name = match comm_vec.next() {
         None => format!(""),
         Some(name) => format!("{}", name),
     };
@@ -34,31 +46,11 @@ pub fn exec_comm(comm : String) -> i32 {
     }
 
     /* Try running as a built-in: */
-    let exit_status = run_built_in(path.clone(), argv.clone());
+    let exit_status = run_built_in(name.clone(), argv.clone());
 
     /* Not a built-in: */
     if -1 == exit_status {
-        let path = which(path);
-        match path {
-            None => {
-                println!("-shell: command not found");
-                return -1;
-            },
-            Some(p) => {
-                /* Set up and run child: */
-                let mut child = Command::new(p)
-                                    .args(argv)
-                                    .spawn()
-                                    .expect("Spawn failure");
-                let exit_status = child.wait()
-                                  .expect("wait failure");
-                
-                return match exit_status.code() {
-                    None => -1,
-                    Some(c) => c,
-                };
-            }
-        }
+        return try_exec(name, argv);
     } else {
         return 0;
     }

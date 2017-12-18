@@ -1,6 +1,4 @@
 
-extern crate libc;
-
 use std::io::{self, Write};
 use std::env;
 

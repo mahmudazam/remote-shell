@@ -6,12 +6,12 @@ use built_ins::run_built_in;
 static PATH : [&'static str; 4] =
     ["/bin/", "/usr/bin/", "/usr/local/bin/", "/usr/sbin/"];
 
-fn try_exec(name : String, argv : Vec<String>) -> i32 {
+fn try_exec(name : &String, argv : &Vec<String>) -> i32 {
     for i in PATH.iter() {
         /* Try an exec: */
         let p = format!("{}{}", i, name);
         let child = Command::new(p)
-                            .args(&argv)
+                            .args(argv)
                             .spawn();
         match child {
             Ok(mut c) => {
@@ -28,46 +28,42 @@ fn try_exec(name : String, argv : Vec<String>) -> i32 {
         }
     }
 
-    println!("-shell: command not found");
+    if name.len() != 0 {
+        println!("-shell: command not found");
+    }
     return -1;
 }
 
-fn path_and_args(comm_str : String) -> (String, Vec<String>) {
-    let mut comm_vec = comm_str.split_whitespace();
-    let name = String::from(match comm_vec.next() {
-        None => format!(""),
-        Some(name) => format!("{}", name),
+fn path_and_args(comm_str : &str) -> (String, Vec<String>) {
+    let comm_vec : Vec<&str> = comm_str.split_whitespace().collect();
+    let name = String::from(match comm_vec.get(0) {
+        None => "",
+        Some(s) => s,
     });
+    let argv : Vec<String> = match comm_vec.get(1..comm_vec.len()) {
+        None => Vec::new(),
+        Some(a) => a.iter().map(
+            |x| String::from(*x)
+        ).collect(),
+    };
     
-    let mut argv = Vec::new();
-    for i in comm_vec {
-        argv.push(String::from(i));
-    }
-
     return (name, argv);
 }
 
-/*
-fn get_comms(comm : String) -> Vec<Command> {
-    let mut comm_strs = comm.split('|').collect();
-    let mut comms = Vec::new();
-    for i in comms {
-        let child = Command::new();
-    }
-    return comms;
+fn get_comms(comm : String) -> Vec<(String, Vec<String>)> {
+    comm.split('|').map(path_and_args).collect()
 }
-*/
 
 pub fn exec_comm(comm : String) -> i32 {
     /* Tokenize string and get the command name and arguments: */
-    let command = path_and_args(comm);
+    let command = get_comms(comm);
 
     /* Try running as a built-in: */
-    let exit_status = run_built_in(&(command.0), &(command.1));
+    let exit_status = run_built_in(&(command[0].0), &(command[0].1));
 
     /* Not a built-in: */
     if -1 == exit_status {
-        return try_exec(command.0, command.1);
+        return try_exec(&(command[0].0), &(command[0].1));
     } else {
         return 0;
     }

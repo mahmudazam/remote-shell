@@ -55,25 +55,29 @@ fn which(name : &String) -> Option<String> {
 }
 
 fn run_command(commands : Vec<(String, Vec<String>)>) -> i32 {
-    let path = match which(&(commands[0].0)) {
-        None => {
-          return -1;
-        },
-        Some(s) => s,
-    };
-    let child = Command::new(&path)
-        .args(&(commands[0].1)).spawn();
-    match child {
-        Ok(mut c) => {
-            let exit_status = c.wait()
-                .expect("Wait failure");
-            match exit_status.code() {
-                None => -1,
-                Some(s) => s,
-            }
-        },
-        Err(_) => -1,
+    let mut ret = -1;
+    for i in commands {
+        let path = match which(&(i.0)) {
+            None => {
+              return -1;
+            },
+            Some(s) => s,
+        };
+        let child = Command::new(&path)
+            .args(&(i.1)).spawn();
+        ret = match child {
+            Ok(mut c) => {
+                let exit_status = c.wait()
+                    .expect("Wait failure");
+                match exit_status.code() {
+                    None => -1,
+                    Some(s) => s,
+                }
+            },
+            Err(_) => -1,
+        };
     }
+    return ret;
 }
 
 pub fn exec_comm(comm : String) -> i32 {

@@ -56,6 +56,7 @@ fn which(name : &String) -> Option<String> {
 
 fn run_command(commands : Vec<(String, Vec<String>)>) -> i32 {
     let mut ret = -1;
+
     for i in commands {
         let path = match which(&(i.0)) {
             None => {
@@ -64,7 +65,8 @@ fn run_command(commands : Vec<(String, Vec<String>)>) -> i32 {
             Some(s) => s,
         };
         let child = Command::new(&path)
-            .args(&(i.1)).spawn();
+            .args(&(i.1))
+            .spawn();
         ret = match child {
             Ok(mut c) => {
                 let exit_status = c.wait()

@@ -36,7 +36,9 @@ fn main() {
     loop {
         print_prompt();
         let comm = get_comm();
-        exec_comm(comm);
+        if -1 == exec_comm(comm) {
+            println!("-shell: command not found");
+        }
     }
 }
 

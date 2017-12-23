@@ -1,11 +1,10 @@
 
 use std::io::prelude::*;
-use std::io::{self, Write, BufReader, BufWriter};
+use std::io::{Write, BufReader, BufWriter};
 use std::net::{TcpListener, TcpStream};
 use std::env;
 
 mod built_ins;
-use built_ins::run_built_in;
 
 mod exec;
 use exec::exec_comm;

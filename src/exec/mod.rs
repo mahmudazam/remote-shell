@@ -2,6 +2,7 @@
 use std::process::{Command, Stdio};
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
+use std::io::Read;
 
 use built_ins::run_built_in;
 
@@ -72,6 +73,9 @@ fn run_command(commands : Vec<(String, Vec<String>)>, buf : &mut String)
             Ok(mut c) => {
                 let exit_status = c.wait()
                     .expect("Wait failure");
+                match c.stdout.unwrap().read_to_string(buf) {
+                    _ => {},
+                };
                 match exit_status.code() {
                     None => -1,
                     Some(s) => s,

@@ -1,7 +1,6 @@
 
 use std::path::Path;
 use std::env;
-use std::process;
 
 pub fn run_built_in(path : &String, argv : &Vec<String>,
         buf : &mut String) -> (i32) {

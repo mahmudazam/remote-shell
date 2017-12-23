@@ -5,12 +5,13 @@ use std::io::prelude::*;
 use std::net::{TcpStream};
 use std::process;
 
-fn read_output(reader : &mut BufReader<&TcpStream>) {
-}
-
 fn main() {
     // Establish TCP connection:
-    let server_address = String::from("127.0.0.1:60000");
+    print!("Please enter the server's address: ");
+    io::stdout().flush().expect("flush failure");
+    let mut server_address = String::new();
+    io::stdin().read_line(&mut server_address).expect("input failure");
+    let server_address = format!("{}:60000", server_address.trim());
     println!("Address of server: {}", server_address);
     let stream = TcpStream::connect(server_address)
         .expect("Could not connect to server");
@@ -23,23 +24,24 @@ fn main() {
     loop {
         let mut comm = String::new();
         let mut buf = String::new();
-unsafe {
-        // Read output from Server:
-        match reader.read_until(0, buf.as_mut_vec()) {
-            Ok(0) => {
-                process::exit(0);
-            },
-            Ok(_) => {
-                ;
-            },
-            Err(_) => {
-                println!("Error");
-                continue;
-            },
-        }
+        unsafe {
+            // Read output from Server:
+            match reader.read_until(0, buf.as_mut_vec()) {
+                Ok(0) => {
+                    process::exit(0);
+                },
+                Ok(_) => {
+                    ;
+                },
+                Err(_) => {
+                    println!("Error");
+                    continue;
+                },
+            }
 
-        println!("{}", buf);
-}
+            print!("{}", buf);
+            io::stdout().flush().expect("flush failure");
+        }
 
         // Send command to server:
         io::stdin().read_line(&mut comm)

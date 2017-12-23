@@ -27,7 +27,7 @@ fn cd(argv : &Vec<String>) -> i32 {
 
 fn pwd(buf : &mut String) -> i32 {
     let cwd = env::current_dir().unwrap();
-    *buf = format!("{}", cwd.display());
+    *buf = format!("{}\n", cwd.display());
     return 0;
 }
 

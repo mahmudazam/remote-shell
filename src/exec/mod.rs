@@ -1,5 +1,5 @@
 
-use std::process::{Command};
+use std::process::{Command, Stdio};
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 
@@ -54,9 +54,9 @@ fn which(name : &String) -> Option<String> {
     return None;
 }
 
-fn run_command(commands : Vec<(String, Vec<String>)>) -> i32 {
+fn run_command(commands : Vec<(String, Vec<String>)>, buf : &mut String)
+        -> i32 {
     let mut ret = -1;
-
     for i in commands {
         let path = match which(&(i.0)) {
             None => {
@@ -66,6 +66,7 @@ fn run_command(commands : Vec<(String, Vec<String>)>) -> i32 {
         };
         let child = Command::new(&path)
             .args(&(i.1))
+            .stdout(Stdio::piped())
             .spawn();
         ret = match child {
             Ok(mut c) => {
@@ -82,18 +83,18 @@ fn run_command(commands : Vec<(String, Vec<String>)>) -> i32 {
     return ret;
 }
 
-pub fn exec_comm(comm : String) -> i32 {
+pub fn exec_comm(comm : String, buf : &mut String) -> i32 {
     /* Tokenize string and get the command name and arguments: */
     let command = get_comm_strings(comm);
 
     /* Try running as a built-in: */
-    let exit_status = run_built_in(&(command[0].0), &(command[0].1));
+    let exit_status = run_built_in(&(command[0].0), &(command[0].1), buf);
 
     /* Not a built-in: */
     if -1 == exit_status {
-        return run_command(command);
+        return run_command(command, buf);
     } else {
-        return 0;
+        return exit_status;
     }
 }
 

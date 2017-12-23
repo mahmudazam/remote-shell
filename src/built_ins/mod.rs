@@ -3,11 +3,12 @@ use std::path::Path;
 use std::env;
 use std::process;
 
-pub fn run_built_in(path : &String, argv : &Vec<String>) -> (i32) {
+pub fn run_built_in(path : &String, argv : &Vec<String>,
+        buf : &mut String) -> (i32) {
     return match path.as_ref() {
         "cd" => cd(argv),
-        "pwd" => pwd(),
-        "exit" => exit(0),
+        "pwd" => pwd(buf),
+        "exit" => exit(buf),
         _ => -1,
     }
 }
@@ -25,13 +26,14 @@ fn cd(argv : &Vec<String>) -> i32 {
     }
 }
 
-fn pwd() -> i32 {
+fn pwd(buf : &mut String) -> i32 {
     let cwd = env::current_dir().unwrap();
-    println!("{}", cwd.display());
+    *buf = format!("{}", cwd.display());
     return 0;
 }
 
-fn exit(i : i32) -> i32 {
-    process::exit(i);
+fn exit(buf : &mut String) -> i32 {
+    *buf = format!("exiting remote-shell");
+    return -3;
 }
 
